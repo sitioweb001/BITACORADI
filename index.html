@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Becarios · Dirección de Integración</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --azul-oscuro:#0b2447;
+  --azul:#123a70;
+  --azul-medio:#2d5daa;
+  --azul-claro:#e7edf7;
+  --dorado:#c9a227;
+  --crema:#f7f5ef;
+  --blanco:#ffffff;
+  --texto:#1f2733;
+  --gris:#6b7280;
+  --gris-borde:#d9dde3;
+  --rojo:#b3261e;
+  --verde:#1f7a4d;
+  --radio:10px;
+  --sombra:0 4px 18px rgba(11,36,71,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--texto);
+  background:
+    radial-gradient(circle at 92% 8%, rgba(201,162,39,.10) 0, transparent 40%),
+    radial-gradient(circle at 6% 90%, rgba(45,93,170,.12) 0, transparent 45%),
+    var(--crema);
+  min-height:100vh;
+}
+.star-field{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0}
+.oculto{display:none !important}
+
+/* ---------- Encabezado institucional ---------- */
+.franja-superior{height:6px;background:linear-gradient(90deg,var(--azul-oscuro) 0 33%,var(--blanco) 33% 66%,var(--azul-oscuro) 66% 100%)}
+.encabezado{
+  background:linear-gradient(180deg,var(--azul-oscuro),var(--azul));
+  color:var(--blanco);
+  padding:18px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  position:relative;z-index:1;
+  box-shadow:var(--sombra);
+}
+.encabezado .titulo-org{display:flex;align-items:center;gap:14px}
+.escudo{
+  width:46px;height:46px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff, var(--dorado) 70%);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:var(--azul-oscuro);font-size:11px;text-align:center;flex-shrink:0;
+  border:2px solid rgba(255,255,255,.6);
+}
+.encabezado h1{font-size:19px;letter-spacing:.3px}
+.encabezado .subt{font-size:12px;opacity:.85;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.encabezado .der{font-size:11px;text-align:right;line-height:1.4;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
+.btn-salir{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.4);color:#fff;
+  padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;
+}
+.btn-salir:hover{background:rgba(255,255,255,.22)}
+
+/* ---------- Contenedor general ---------- */
+.envoltorio{max-width:960px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1}
+
+/* ---------- LOGIN ---------- */
+.pantalla-login{min-height:calc(100vh - 90px);display:flex;align-items:center;justify-content:center;padding:20px}
+.tarjeta-login{
+  background:var(--blanco);border-radius:14px;box-shadow:var(--sombra);
+  padding:38px 34px;width:100%;max-width:400px;border-top:5px solid var(--dorado);
+}
+.tarjeta-login h2{font-size:21px;color:var(--azul-oscuro);margin-bottom:4px}
+.tarjeta-login p.desc{color:var(--gris);font-size:13.5px;margin:0 0 22px}
+.campo{margin-bottom:16px}
+.campo label{display:block;font-size:12.5px;font-weight:600;color:var(--azul);margin-bottom:6px;letter-spacing:.2px}
+.campo input,.campo select,.campo textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--gris-borde);border-radius:8px;
+  font-size:14.5px;font-family:inherit;color:var(--texto);background:#fff;
+}
+.campo input:focus,.campo select:focus,.campo textarea:focus{outline:2px solid var(--azul-medio);outline-offset:1px;border-color:var(--azul-medio)}
+.btn{
+  border:none;border-radius:8px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .05s;
+}
+.btn:active{transform:scale(.98)}
+.btn-primario{background:var(--azul-oscuro);color:#fff;width:100%}
+.btn-primario:hover{background:var(--azul)}
+.msg-error{background:#fdecea;color:var(--rojo);border:1px solid #f3c6c1;padding:9px 12px;border-radius:8px;font-size:13px;margin-top:14px}
+.msg-ok{background:#e9f6ef;color:var(--verde);border:1px solid #bfe5cf;padding:9px 12px;border-radius:8px;font-size:13px;margin-top:14px}
+.aviso-config{background:#fff7e6;border:1px solid #f0d99a;color:#7a5b00;padding:10px 12px;border-radius:8px;font-size:12.5px;margin-bottom:16px}
+
+/* ---------- BITÁCORA ---------- */
+.tarjeta{background:var(--blanco);border-radius:var(--radio);box-shadow:var(--sombra);padding:24px;margin-bottom:22px}
+.tarjeta h3{color:var(--azul-oscuro);font-size:16px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--azul-claro)}
+.rejilla-perfil{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 18px}
+@media(max-width:640px){.rejilla-perfil{grid-template-columns:1fr}}
+
+.fila-actividad{
+  border:1px solid var(--gris-borde);border-radius:10px;padding:16px;margin-bottom:14px;
+  display:grid;grid-template-columns:32px 1fr 150px 110px 90px;gap:14px;align-items:start;
+  background:#fbfbfa;
+}
+@media(max-width:800px){.fila-actividad{grid-template-columns:1fr;}}
+.num-circulo{
+  width:30px;height:30px;border-radius:50%;background:var(--azul-oscuro);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+}
+.fila-actividad label.mini{display:block;font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;font-weight:600}
+.fila-actividad textarea{min-height:64px;resize:vertical}
+.caja-firma,.caja-sello{
+  display:flex;align-items:center;justify-content:center;background:#fff;border:1px dashed var(--gris-borde);
+  border-radius:8px;height:64px;overflow:hidden;position:relative;
+}
+.caja-firma img,.caja-sello img{max-width:100%;max-height:100%;object-fit:contain}
+.placeholder-img{font-size:10.5px;color:var(--gris);text-align:center;padding:4px;line-height:1.3}
+.subir-mini{position:absolute;bottom:2px;right:2px;font-size:9px;background:rgba(255,255,255,.9);border:1px solid var(--gris-borde);border-radius:5px;padding:1px 4px;cursor:pointer;color:var(--azul)}
+
+.barra-acciones{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+.btn-accion{background:var(--azul-claro);color:var(--azul-oscuro);border:1px solid #c7d6ef}
+.btn-accion:hover{background:#dbe6f8}
+.btn-guardar{background:var(--verde);color:#fff}
+.btn-guardar:hover{background:#186a41}
+.estado-guardado{text-align:center;font-size:12.5px;color:var(--gris);margin-top:10px;min-height:16px}
+
+.pie{text-align:center;font-size:11.5px;color:var(--gris);margin-top:30px;line-height:1.6}
+input[type="file"]{display:none}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:girar .7s linear infinite}
+@keyframes girar{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<svg class="star-field" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="estrellas" width="140" height="140" patternUnits="userSpaceOnUse">
+      <path d="M20 2 L24 15 L37 15 L27 23 L31 36 L20 28 L9 36 L13 23 L3 15 L16 15 Z" fill="#123a70"/>
+      <path d="M100 60 L103 69 L112 69 L105 75 L108 84 L100 78 L92 84 L95 75 L88 69 L97 69 Z" fill="#c9a227"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#estrellas)"/>
+</svg>
+
+<div class="franja-superior"></div>
+<header class="encabezado">
+  <div class="titulo-org">
+    <div class="escudo">DI</div>
+    <div>
+      <h1>Dirección de Integración</h1>
+      <div class="subt">Continuidad Académica y Técnica</div>
+    </div>
+  </div>
+  <div id="cajaUsuario" class="oculto" style="display:flex;align-items:center;gap:14px">
+    <div class="der">Florecimiento Salvadoreño<br><span id="nombreUsuarioActivo"></span></div>
+    <button class="btn-salir" onclick="cerrarSesion()">Salir</button>
+  </div>
+</header>
+
+<div class="envoltorio">
+
+  <!-- ============ PANTALLA DE LOGIN ============ -->
+  <section id="pantallaLogin" class="pantalla-login">
+    <div class="tarjeta-login">
+      <h2>Control de Becarios · 2026</h2>
+      <p class="desc">Ingresa con tu usuario y contraseña para ver y actualizar tu bitácora.</p>
+
+      <div id="avisoConfig" class="aviso-config oculto">
+        ⚠️ Esta aplicación aún no está conectada a Google Sheets. Edita la constante
+        <code>APPS_SCRIPT_URL</code> al inicio del archivo <code>index.html</code> con la URL
+        de tu Apps Script publicado. Revisa <strong>INSTRUCCIONES.md</strong>.
+      </div>
+
+      <form id="formLogin" onsubmit="return iniciarSesion(event)">
+        <div class="campo">
+          <label>Usuario</label>
+          <input list="listaUsuarios" id="inputUsuario" placeholder="ej. jperez" autocomplete="username" required>
+          <datalist id="listaUsuarios"></datalist>
+        </div>
+        <div class="campo">
+          <label>Contraseña</label>
+          <input type="password" id="inputPassword" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primario" id="btnLogin">Ingresar</button>
+      </form>
+      <div id="mensajeLogin"></div>
+    </div>
+  </section>
+
+  <!-- ============ BITÁCORA ============ -->
+  <section id="pantallaBitacora" class="oculto">
+
+    <div class="tarjeta" id="capturaPDF">
+      <h3>Datos del becario</h3>
+      <div class="rejilla-perfil">
+        <div class="campo">
+          <label>Nombre del voluntario</label>
+          <input id="pNombre" placeholder="Nombre completo">
+        </div>
+        <div class="campo">
+          <label>Número de teléfono</label>
+          <input id="pTelefono" placeholder="0000-0000">
+        </div>
+        <div class="campo">
+          <label>Universidad de estudio</label>
+          <input id="pUniversidad" placeholder="Universidad">
+        </div>
+        <div class="campo">
+          <label>Regional</label>
+          <input id="pRegional" placeholder="Regional">
+        </div>
+        <div class="campo" style="grid-column:1/-1">
+          <label>Carrera que estudia</label>
+          <input id="pCarrera" placeholder="Carrera">
+        </div>
+      </div>
+    </div>
+
+    <div class="tarjeta">
+      <h3>Constancia de actividades realizadas por el becario (año 2026)</h3>
+      <div id="contenedorFilas"></div>
+    </div>
+
+    <div class="tarjeta">
+      <h3>Firma / Sello de referencia</h3>
+      <p style="font-size:12.5px;color:var(--gris);margin-top:-6px">
+        Coloca los archivos <code>firmatecnico.png</code> (o .jpg) y <code>sello.png</code> (o .jpg)
+        en la misma carpeta que <code>index.html</code> para que aparezcan automáticamente en cada actividad.
+        Si no existen, puedes subirlos aquí (solo se guardan en este navegador).
+      </p>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div>
+          <label class="mini" style="display:block;font-size:11px;color:var(--gris);margin-bottom:6px">FIRMA DEL TÉCNICO</label>
+          <div class="caja-firma" style="width:180px;height:80px" id="vistaFirmaGrande"></div>
+          <label class="btn btn-accion" style="margin-top:8px;font-size:12px;padding:6px 10px">
+            Subir firma <input type="file" accept="image/png,image/jpeg" onchange="subirImagenManual(event,'firma')">
+          </label>
+        </div>
+        <div>
+          <label class="mini" style="display:block;font-size:11px;color:var(--gris);margin-bottom:6px">SELLO</label>
+          <div class="caja-sello" style="width:120px;height:80px" id="vistaSelloGrande"></div>
+          <label class="btn btn-accion" style="margin-top:8px;font-size:12px;padding:6px 10px">
+            Subir sello <input type="file" accept="image/png,image/jpeg" onchange="subirImagenManual(event,'sello')">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="barra-acciones">
+      <button class="btn btn-guardar" onclick="guardarDatos()" id="btnGuardar">💾 Guardar datos</button>
+      <button class="btn btn-accion" onclick="descargarPDF()">⬇ Descargar PDF</button>
+      <button class="btn btn-accion" onclick="descargarDOCX()">⬇ Descargar Word</button>
+      <button class="btn btn-accion" onclick="descargarJSON()">⬇ Descargar JSON</button>
+    </div>
+    <div class="estado-guardado" id="estadoGuardado"></div>
+  </section>
+
+  <div class="pie">
+    Dirección de Integración — Continuidad Académica y Técnica · Gobierno de El Salvador<br>
+    Uso exclusivo Coordinación Continuidad Académica y Técnica y Unidad de Becados.
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   CONFIGURACIÓN — pega aquí la URL de tu Google Apps Script publicado
+   (ver INSTRUCCIONES.md). Debe terminar en /exec
+   ====================================================================== */
+const APPS_SCRIPT_URL = "PEGA_AQUI_TU_URL_DE_APPS_SCRIPT";
+
+const NUM_ACTIVIDADES = 5;
+let usuarioActual = null;
+
+/* ---------------- utilidades de imágenes (firma / sello) ---------------- */
+const RUTAS_FIRMA = ["firmatecnico.png","firmatecnico.jpg","firmatecnico.jpeg"];
+const RUTAS_SELLO = ["sello.png","sello.jpg","sello.jpeg"];
+let urlFirmaValida = null;
+let urlSelloValida = null;
+
+function probarRutas(rutas){
+  return new Promise(resolve=>{
+    let i=0;
+    function intentar(){
+      if(i>=rutas.length){resolve(null);return;}
+      const img = new Image();
+      img.onload = ()=>resolve(rutas[i]);
+      img.onerror = ()=>{i++;intentar();};
+      img.src = rutas[i] + "?_=" + Date.now();
+    }
+    intentar();
+  });
+}
+
+async function inicializarImagenes(){
+  const guardadaFirma = localStorage.getItem("img_firma_manual");
+  const guardadaSello = localStorage.getItem("img_sello_manual");
+  urlFirmaValida = guardadaFirma || await probarRutas(RUTAS_FIRMA);
+  urlSelloValida = guardadaSello || await probarRutas(RUTAS_SELLO);
+  pintarImagenGrande("vistaFirmaGrande", urlFirmaValida, "Firma no encontrada");
+  pintarImagenGrande("vistaSelloGrande", urlSelloValida, "Sello no encontrado");
+  document.querySelectorAll(".caja-firma[data-slot]").forEach(c=>pintarImagenGrande(c.id, urlFirmaValida, "Sin firma"));
+  document.querySelectorAll(".caja-sello[data-slot]").forEach(c=>pintarImagenGrande(c.id, urlSelloValida, "Sin sello"));
+}
+
+function pintarImagenGrande(idContenedor, url, textoVacio){
+  const cont = document.getElementById(idContenedor);
+  if(!cont) return;
+  cont.innerHTML = url
+    ? `<img src="${url}" alt="">`
+    : `<div class="placeholder-img">${textoVacio}</div>`;
+}
+
+function subirImagenManual(evento, tipo){
+  const archivo = evento.target.files[0];
+  if(!archivo) return;
+  const lector = new FileReader();
+  lector.onload = e=>{
+    const dataUrl = e.target.result;
+    if(tipo === "firma"){
+      urlFirmaValida = dataUrl;
+      localStorage.setItem("img_firma_manual", dataUrl);
+    } else {
+      urlSelloValida = dataUrl;
+      localStorage.setItem("img_sello_manual", dataUrl);
+    }
+    inicializarImagenes();
+  };
+  lector.readAsDataURL(archivo);
+}
+
+/* ---------------- construir filas de actividad ---------------- */
+function construirFilas(){
+  const cont = document.getElementById("contenedorFilas");
+  cont.innerHTML = "";
+  for(let i=1;i<=NUM_ACTIVIDADES;i++){
+    const fila = document.createElement("div");
+    fila.className = "fila-actividad";
+    fila.innerHTML = `
+      <div class="num-circulo">${i}</div>
+      <div>
+        <label class="mini">Actividad realizada</label>
+        <textarea id="act_${i}" placeholder="Describe la actividad #${i}..."></textarea>
+      </div>
+      <div>
+        <label class="mini">Fecha</label>
+        <input type="date" id="fecha_${i}">
+      </div>
+      <div>
+        <label class="mini">Nombre y firma</label>
+        <div class="caja-firma" id="firma_${i}" data-slot="firma"></div>
+      </div>
+      <div>
+        <label class="mini">Sello</label>
+        <div class="caja-sello" id="sello_${i}" data-slot="sello"></div>
+      </div>
+    `;
+    cont.appendChild(fila);
+  }
+}
+
+/* ---------------- llamadas al backend (Google Apps Script) ---------------- */
+function backendConfigurado(){
+  return APPS_SCRIPT_URL && APPS_SCRIPT_URL.startsWith("http");
+}
+
+async function cargarListaUsuarios(){
+  if(!backendConfigurado()){
+    document.getElementById("avisoConfig").classList.remove("oculto");
+    return;
+  }
+  try{
+    const resp = await fetch(`${APPS_SCRIPT_URL}?action=getUsuarios`);
+    const datos = await resp.json();
+    const lista = document.getElementById("listaUsuarios");
+    lista.innerHTML = "";
+    (datos.usuarios || []).forEach(u=>{
+      const op = document.createElement("option");
+      op.value = u.usuario;
+      op.label = u.nombreCompleto || "";
+      lista.appendChild(op);
+    });
+  }catch(err){
+    console.warn("No se pudo cargar la lista de usuarios:", err);
+  }
+}
+
+async function iniciarSesion(evento){
+  evento.preventDefault();
+  const usuario = document.getElementById("inputUsuario").value.trim();
+  const password = document.getElementById("inputPassword").value;
+  const msj = document.getElementById("mensajeLogin");
+  const btn = document.getElementById("btnLogin");
+  msj.innerHTML = "";
+
+  if(!backendConfigurado()){
+    msj.innerHTML = `<div class="msg-error">La aplicación no está conectada a Google Sheets todavía. Revisa INSTRUCCIONES.md.</div>`;
+    return false;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Verificando...`;
+  try{
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:"POST",
+      body: JSON.stringify({action:"login", usuario, password})
+    });
+    const datos = await resp.json();
+    if(datos.success){
+      usuarioActual = {usuario, nombreCompleto: datos.nombreCompleto || usuario};
+      sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActual));
+      mostrarBitacora();
+    } else {
+      msj.innerHTML = `<div class="msg-error">${datos.mensaje || "Usuario o contraseña incorrectos."}</div>`;
+    }
+  }catch(err){
+    msj.innerHTML = `<div class="msg-error">No se pudo conectar con el servidor. Intenta de nuevo.</div>`;
+    console.error(err);
+  }
+  btn.disabled = false;
+  btn.innerHTML = "Ingresar";
+  return false;
+}
+
+function cerrarSesion(){
+  sessionStorage.removeItem("usuarioActual");
+  usuarioActual = null;
+  document.getElementById("pantallaBitacora").classList.add("oculto");
+  document.getElementById("cajaUsuario").classList.add("oculto");
+  document.getElementById("pantallaLogin").classList.remove("oculto");
+  document.getElementById("formLogin").reset();
+}
+
+async function mostrarBitacora(){
+  document.getElementById("pantallaLogin").classList.add("oculto");
+  document.getElementById("pantallaBitacora").classList.remove("oculto");
+  document.getElementById("cajaUsuario").classList.remove("oculto");
+  document.getElementById("nombreUsuarioActivo").textContent = usuarioActual.nombreCompleto;
+  construirFilas();
+  await inicializarImagenes();
+  await cargarDatosUsuario();
+}
+
+async function cargarDatosUsuario(){
+  const estado = document.getElementById("estadoGuardado");
+  if(!backendConfigurado()) return;
+  estado.textContent = "Cargando tus datos guardados...";
+  try{
+    const resp = await fetch(`${APPS_SCRIPT_URL}?action=getDatos&usuario=${encodeURIComponent(usuarioActual.usuario)}`);
+    const datos = await resp.json();
+    const perfil = datos.perfil || {};
+    document.getElementById("pNombre").value = perfil.nombreVoluntario || "";
+    document.getElementById("pTelefono").value = perfil.telefono || "";
+    document.getElementById("pUniversidad").value = perfil.universidad || "";
+    document.getElementById("pRegional").value = perfil.regional || "";
+    document.getElementById("pCarrera").value = perfil.carrera || "";
+
+    const actividades = datos.actividades || [];
+    for(let i=1;i<=NUM_ACTIVIDADES;i++){
+      const item = actividades[i-1] || {};
+      document.getElementById(`act_${i}`).value = item.actividad || "";
+      document.getElementById(`fecha_${i}`).value = item.fecha || "";
+    }
+    estado.textContent = actividades.length ? "Datos cargados." : "Aún no tienes datos guardados. Completa el formulario y guarda.";
+  }catch(err){
+    estado.textContent = "No se pudieron cargar los datos guardados.";
+    console.error(err);
+  }
+}
+
+function recolectarDatosFormulario(){
+  const perfil = {
+    nombreVoluntario: document.getElementById("pNombre").value.trim(),
+    telefono: document.getElementById("pTelefono").value.trim(),
+    universidad: document.getElementById("pUniversidad").value.trim(),
+    regional: document.getElementById("pRegional").value.trim(),
+    carrera: document.getElementById("pCarrera").value.trim(),
+  };
+  const actividades = [];
+  for(let i=1;i<=NUM_ACTIVIDADES;i++){
+    actividades.push({
+      fila: i,
+      actividad: document.getElementById(`act_${i}`).value.trim(),
+      fecha: document.getElementById(`fecha_${i}`).value
+    });
+  }
+  return {perfil, actividades};
+}
+
+async function guardarDatos(){
+  const estado = document.getElementById("estadoGuardado");
+  const btn = document.getElementById("btnGuardar");
+  if(!backendConfigurado()){
+    estado.innerHTML = `<span style="color:var(--rojo)">Configura APPS_SCRIPT_URL para poder guardar.</span>`;
+    return;
+  }
+  const {perfil, actividades} = recolectarDatosFormulario();
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Guardando...`;
+  try{
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:"POST",
+      body: JSON.stringify({action:"guardar", usuario: usuarioActual.usuario, perfil, actividades})
+    });
+    const datos = await resp.json();
+    if(datos.success){
+      estado.innerHTML = `<span style="color:var(--verde)">✔ Guardado el ${new Date().toLocaleString("es-SV")}</span>`;
+    } else {
+      estado.innerHTML = `<span style="color:var(--rojo)">${datos.mensaje || "No se pudo guardar."}</span>`;
+    }
+  }catch(err){
+    estado.innerHTML = `<span style="color:var(--rojo)">Error de conexión al guardar.</span>`;
+    console.error(err);
+  }
+  btn.disabled = false;
+  btn.innerHTML = "💾 Guardar datos";
+}
+
+/* ---------------- exportaciones ---------------- */
+async function descargarPDF(){
+  const nodo = document.getElementById("capturaPDF");
+  const contenedorCompleto = document.getElementById("pantallaBitacora");
+  const { jsPDF } = window.jspdf;
+  const canvas = await html2canvas(contenedorCompleto, {scale:2, backgroundColor:"#ffffff"});
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p","mm","a4");
+  const ancho = 210;
+  const alto = (canvas.height * ancho) / canvas.width;
+  let alturaRestante = alto;
+  let posicion = 0;
+  pdf.addImage(imgData,"PNG",0,posicion,ancho,alto);
+  alturaRestante -= 297;
+  while(alturaRestante > 0){
+    posicion = alturaRestante - alto;
+    pdf.addPage();
+    pdf.addImage(imgData,"PNG",0,posicion,ancho,alto);
+    alturaRestante -= 297;
+  }
+  pdf.save(`bitacora_${(usuarioActual?.usuario)||"becario"}.pdf`);
+}
+
+function descargarDOCX(){
+  const {perfil, actividades} = recolectarDatosFormulario();
+  const filasHtml = actividades.map(a=>`
+    <tr>
+      <td style="border:1px solid #999;padding:6px;text-align:center">${a.fila}</td>
+      <td style="border:1px solid #999;padding:6px">${(a.actividad||"").replace(/\n/g,"<br>")}</td>
+      <td style="border:1px solid #999;padding:6px;text-align:center">${a.fecha||""}</td>
+      <td style="border:1px solid #999;padding:6px;text-align:center">
+        ${urlFirmaValida ? `<img src="${urlFirmaValida}" style="max-height:40px">` : ""}
+      </td>
+      <td style="border:1px solid #999;padding:6px;text-align:center">
+        ${urlSelloValida ? `<img src="${urlSelloValida}" style="max-height:40px">` : ""}
+      </td>
+    </tr>`).join("");
+
+  const html = `
+  <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head><meta charset="utf-8"><title>Bitácora</title></head>
+  <body style="font-family:Calibri,Arial,sans-serif">
+    <h2 style="text-align:center">DIRECCIÓN DE INTEGRACIÓN — CONTINUIDAD ACADÉMICA Y TÉCNICA</h2>
+    <p style="text-align:center"><b>CONSTANCIA DE ACTIVIDADES REALIZADAS POR EL BECARIO (CONTROL BECARIO) AÑO 2026</b></p>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px">
+      <tr><td style="padding:4px"><b>Nombre del voluntario:</b></td><td style="padding:4px">${perfil.nombreVoluntario||""}</td></tr>
+      <tr><td style="padding:4px"><b>Número de teléfono:</b></td><td style="padding:4px">${perfil.telefono||""}</td></tr>
+      <tr><td style="padding:4px"><b>Universidad de estudio:</b></td><td style="padding:4px">${perfil.universidad||""}</td></tr>
+      <tr><td style="padding:4px"><b>Regional:</b></td><td style="padding:4px">${perfil.regional||""}</td></tr>
+      <tr><td style="padding:4px"><b>Carrera que estudia:</b></td><td style="padding:4px">${perfil.carrera||""}</td></tr>
+    </table>
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="background:#123a70;color:#fff">
+        <th style="border:1px solid #999;padding:6px">N°</th>
+        <th style="border:1px solid #999;padding:6px">Actividad realizada</th>
+        <th style="border:1px solid #999;padding:6px">Fecha</th>
+        <th style="border:1px solid #999;padding:6px">Nombre y firma del encargado</th>
+        <th style="border:1px solid #999;padding:6px">Sello</th>
+      </tr>
+      ${filasHtml}
+    </table>
+  </body></html>`;
+
+  const blob = new Blob(['\ufeff', html], {type:"application/msword"});
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(blob);
+  enlace.download = `bitacora_${(usuarioActual?.usuario)||"becario"}.doc`;
+  enlace.click();
+}
+
+function descargarJSON(){
+  const {perfil, actividades} = recolectarDatosFormulario();
+  const paquete = {
+    usuario: usuarioActual?.usuario,
+    nombreCompleto: usuarioActual?.nombreCompleto,
+    generado: new Date().toISOString(),
+    perfil,
+    actividades
+  };
+  const blob = new Blob([JSON.stringify(paquete, null, 2)], {type:"application/json"});
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(blob);
+  enlace.download = `bitacora_${(usuarioActual?.usuario)||"becario"}.json`;
+  enlace.click();
+}
+
+/* ---------------- arranque ---------------- */
+window.addEventListener("DOMContentLoaded", async ()=>{
+  await cargarListaUsuarios();
+  const guardado = sessionStorage.getItem("usuarioActual");
+  if(guardado){
+    usuarioActual = JSON.parse(guardado);
+    mostrarBitacora();
+  }
+});
+</script>
+</body>
+</html>
