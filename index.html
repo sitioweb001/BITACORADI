@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -57,8 +56,8 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0}
   font-weight:700;color:var(--azul-oscuro);font-size:11px;text-align:center;flex-shrink:0;
   border:2px solid rgba(255,255,255,.6);
 }
-.encabezado h1{font-size:19px;letter-spacing:.3px}
-.encabezado .subt{font-size:12px;opacity:.85;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.encabezado h1{font-size:18px;letter-spacing:.3px;line-height:1.25}
+.encabezado .subt{font-size:11.5px;opacity:.85;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
 .encabezado .der{font-size:11px;text-align:right;line-height:1.4;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
 .btn-salir{
   background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.4);color:#fff;
@@ -67,7 +66,7 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0}
 .btn-salir:hover{background:rgba(255,255,255,.22)}
 
 /* ---------- Contenedor general ---------- */
-.envoltorio{max-width:960px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1}
+.envoltorio{max-width:980px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1}
 
 /* ---------- LOGIN ---------- */
 .pantalla-login{min-height:calc(100vh - 90px);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -97,7 +96,8 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0}
 
 /* ---------- BITÁCORA ---------- */
 .tarjeta{background:var(--blanco);border-radius:var(--radio);box-shadow:var(--sombra);padding:24px;margin-bottom:22px}
-.tarjeta h3{color:var(--azul-oscuro);font-size:16px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--azul-claro)}
+.tarjeta h3{color:var(--azul-oscuro);font-size:16px;margin-bottom:4px;padding-bottom:10px;border-bottom:2px solid var(--azul-claro)}
+.subtitulo-tabla{font-size:12.5px;color:var(--gris);margin:10px 0 14px;text-transform:uppercase;letter-spacing:.3px}
 .rejilla-perfil{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 18px}
 @media(max-width:640px){.rejilla-perfil{grid-template-columns:1fr}}
 
@@ -119,7 +119,12 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0}
 }
 .caja-firma img,.caja-sello img{max-width:100%;max-height:100%;object-fit:contain}
 .placeholder-img{font-size:10.5px;color:var(--gris);text-align:center;padding:4px;line-height:1.3}
-.subir-mini{position:absolute;bottom:2px;right:2px;font-size:9px;background:rgba(255,255,255,.9);border:1px solid var(--gris-borde);border-radius:5px;padding:1px 4px;cursor:pointer;color:var(--azul)}
+
+.nota-uso{background:var(--azul-claro);border:1px solid #c7d6ef;color:var(--azul-oscuro);font-size:12px;
+  padding:10px 12px;border-radius:8px;margin-top:6px;line-height:1.5}
+
+.bloque-firma-final{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-top:16px}
+.bloque-firma-final .campo{flex:1;min-width:220px;margin-bottom:0}
 
 .barra-acciones{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
 .btn-accion{background:var(--azul-claro);color:var(--azul-oscuro);border:1px solid #c7d6ef}
@@ -151,8 +156,7 @@ input[type="file"]{display:none}
   <div class="titulo-org">
     <div class="escudo">DI</div>
     <div>
-      <h1>Dirección de Integración</h1>
-      <div class="subt">Continuidad Académica y Técnica</div>
+      <h1>Dirección de Integración<br>Continuidad Académica y Técnica</h1>
     </div>
   </div>
   <div id="cajaUsuario" class="oculto" style="display:flex;align-items:center;gap:14px">
@@ -195,15 +199,16 @@ input[type="file"]{display:none}
   <section id="pantallaBitacora" class="oculto">
 
     <div class="tarjeta" id="capturaPDF">
-      <h3>Datos del becario</h3>
-      <div class="rejilla-perfil">
+      <h3 style="text-align:center">CONSTANCIA DE ACTIVIDADES REALIZADAS POR EL BECARIO (CONTROL BECARIO) AÑO 2026</h3>
+
+      <div class="rejilla-perfil" style="margin-top:16px">
         <div class="campo">
           <label>Nombre del voluntario</label>
           <input id="pNombre" placeholder="Nombre completo">
         </div>
         <div class="campo">
-          <label>Número de teléfono</label>
-          <input id="pTelefono" placeholder="0000-0000">
+          <label>Número de teléfono y correo</label>
+          <input id="pTelefonoCorreo" placeholder="0000-0000 · correo@ejemplo.com">
         </div>
         <div class="campo">
           <label>Universidad de estudio</label>
@@ -213,36 +218,56 @@ input[type="file"]{display:none}
           <label>Regional</label>
           <input id="pRegional" placeholder="Regional">
         </div>
-        <div class="campo" style="grid-column:1/-1">
+        <div class="campo">
           <label>Carrera que estudia</label>
           <input id="pCarrera" placeholder="Carrera">
+        </div>
+        <div class="campo">
+          <label>Ciclo en curso</label>
+          <input id="pCiclo" placeholder="ej. Ciclo I-2026">
         </div>
       </div>
     </div>
 
     <div class="tarjeta">
-      <h3>Constancia de actividades realizadas por el becario (año 2026)</h3>
-      <div id="contenedorFilas"></div>
+      <h3>Actividades obligatorias por ciclo</h3>
+      <p class="subtitulo-tabla">A continuación se registrarán las 3 actividades obligatorias por cada ciclo</p>
+      <div id="contenedorObligatorias"></div>
     </div>
 
     <div class="tarjeta">
-      <h3>Firma / Sello de referencia</h3>
-      <p style="font-size:12.5px;color:var(--gris);margin-top:-6px">
+      <h3>Actividades extra</h3>
+      <p class="subtitulo-tabla">Tabla adicional para actividades obligatorias/extra correspondientes a este ciclo</p>
+      <div id="contenedorExtra"></div>
+      <div class="nota-uso">
+        Uso exclusivo Coordinación Continuidad Académica y Técnica y Unidad de Becados (firma del técnico a cargo
+        cuando finalicen las 3 actividades establecidas). Anexado a las actividades extra que el becado haga, puede
+        ser actividades obligatorias extra a las 3 que él realice.
+      </div>
+    </div>
+
+    <div class="tarjeta">
+      <h3>Firma del técnico responsable en la universidad</h3>
+      <p style="font-size:12.5px;color:var(--gris);margin-top:10px">
         Coloca los archivos <code>firmatecnico.png</code> (o .jpg) y <code>sello.png</code> (o .jpg)
-        en la misma carpeta que <code>index.html</code> para que aparezcan automáticamente en cada actividad.
-        Si no existen, puedes subirlos aquí (solo se guardan en este navegador).
+        en la misma carpeta que <code>index.html</code> para que aparezcan automáticamente en cada actividad
+        y en esta sección. Si no existen, puedes subirlos aquí (solo se guardan en este navegador).
       </p>
-      <div style="display:flex;gap:24px;flex-wrap:wrap">
+      <div class="bloque-firma-final">
+        <div class="campo">
+          <label>Nombre completo de técnico responsable en la universidad</label>
+          <input id="pTecnicoResponsable" placeholder="Nombre completo">
+        </div>
         <div>
-          <label class="mini" style="display:block;font-size:11px;color:var(--gris);margin-bottom:6px">FIRMA DEL TÉCNICO</label>
-          <div class="caja-firma" style="width:180px;height:80px" id="vistaFirmaGrande"></div>
+          <label class="mini" style="display:block;font-size:11px;color:var(--gris);margin-bottom:6px">FIRMA</label>
+          <div class="caja-firma" style="width:170px;height:70px" id="vistaFirmaGrande"></div>
           <label class="btn btn-accion" style="margin-top:8px;font-size:12px;padding:6px 10px">
             Subir firma <input type="file" accept="image/png,image/jpeg" onchange="subirImagenManual(event,'firma')">
           </label>
         </div>
         <div>
           <label class="mini" style="display:block;font-size:11px;color:var(--gris);margin-bottom:6px">SELLO</label>
-          <div class="caja-sello" style="width:120px;height:80px" id="vistaSelloGrande"></div>
+          <div class="caja-sello" style="width:110px;height:70px" id="vistaSelloGrande"></div>
           <label class="btn btn-accion" style="margin-top:8px;font-size:12px;padding:6px 10px">
             Subir sello <input type="file" accept="image/png,image/jpeg" onchange="subirImagenManual(event,'sello')">
           </label>
@@ -260,8 +285,7 @@ input[type="file"]{display:none}
   </section>
 
   <div class="pie">
-    Dirección de Integración — Continuidad Académica y Técnica · Gobierno de El Salvador<br>
-    Uso exclusivo Coordinación Continuidad Académica y Técnica y Unidad de Becados.
+    Dirección de Integración — Continuidad Académica y Técnica · Gobierno de El Salvador · Florecimiento Salvadoreño
   </div>
 </div>
 
@@ -272,7 +296,8 @@ input[type="file"]{display:none}
    ====================================================================== */
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytTrnZlIPYoMnoKnwKHCW8znqqvn73wp04Q6x362MxAf83RUt-Cz3X7Z0GqDfdJX0Tgg/exec";
 
-const NUM_ACTIVIDADES = 5;
+const NUM_OBLIGATORIAS = 3;
+const NUM_EXTRA = 3;
 let usuarioActual = null;
 
 /* ---------------- utilidades de imágenes (firma / sello) ---------------- */
@@ -332,34 +357,39 @@ function subirImagenManual(evento, tipo){
   lector.readAsDataURL(archivo);
 }
 
-/* ---------------- construir filas de actividad ---------------- */
-function construirFilas(){
-  const cont = document.getElementById("contenedorFilas");
+/* ---------------- construir las 2 tablas de actividades ---------------- */
+function construirTabla(contenedorId, prefijo, cantidad){
+  const cont = document.getElementById(contenedorId);
   cont.innerHTML = "";
-  for(let i=1;i<=NUM_ACTIVIDADES;i++){
+  for(let i=1;i<=cantidad;i++){
     const fila = document.createElement("div");
     fila.className = "fila-actividad";
     fila.innerHTML = `
       <div class="num-circulo">${i}</div>
       <div>
         <label class="mini">Actividad realizada</label>
-        <textarea id="act_${i}" placeholder="Describe la actividad #${i}..."></textarea>
+        <textarea id="act_${prefijo}_${i}" placeholder="Describe la actividad #${i}..."></textarea>
       </div>
       <div>
         <label class="mini">Fecha</label>
-        <input type="date" id="fecha_${i}">
+        <input type="date" id="fecha_${prefijo}_${i}">
       </div>
       <div>
-        <label class="mini">Nombre y firma</label>
-        <div class="caja-firma" id="firma_${i}" data-slot="firma"></div>
+        <label class="mini">Nombre y firma del técnico</label>
+        <div class="caja-firma" id="firma_${prefijo}_${i}" data-slot="firma"></div>
       </div>
       <div>
         <label class="mini">Sello</label>
-        <div class="caja-sello" id="sello_${i}" data-slot="sello"></div>
+        <div class="caja-sello" id="sello_${prefijo}_${i}" data-slot="sello"></div>
       </div>
     `;
     cont.appendChild(fila);
   }
+}
+
+function construirFilas(){
+  construirTabla("contenedorObligatorias", "o", NUM_OBLIGATORIAS);
+  construirTabla("contenedorExtra", "e", NUM_EXTRA);
 }
 
 /* ---------------- llamadas al backend (Google Apps Script) ---------------- */
@@ -453,18 +483,26 @@ async function cargarDatosUsuario(){
     const datos = await resp.json();
     const perfil = datos.perfil || {};
     document.getElementById("pNombre").value = perfil.nombreVoluntario || "";
-    document.getElementById("pTelefono").value = perfil.telefono || "";
+    document.getElementById("pTelefonoCorreo").value = perfil.telefonoCorreo || "";
     document.getElementById("pUniversidad").value = perfil.universidad || "";
     document.getElementById("pRegional").value = perfil.regional || "";
     document.getElementById("pCarrera").value = perfil.carrera || "";
+    document.getElementById("pCiclo").value = perfil.ciclo || "";
+    document.getElementById("pTecnicoResponsable").value = perfil.tecnicoResponsable || "";
 
-    const actividades = datos.actividades || [];
-    for(let i=1;i<=NUM_ACTIVIDADES;i++){
-      const item = actividades[i-1] || {};
-      document.getElementById(`act_${i}`).value = item.actividad || "";
-      document.getElementById(`fecha_${i}`).value = item.fecha || "";
+    const obligatorias = datos.obligatorias || [];
+    for(let i=1;i<=NUM_OBLIGATORIAS;i++){
+      const item = obligatorias[i-1] || {};
+      document.getElementById(`act_o_${i}`).value = item.actividad || "";
+      document.getElementById(`fecha_o_${i}`).value = item.fecha || "";
     }
-    estado.textContent = actividades.length ? "Datos cargados." : "Aún no tienes datos guardados. Completa el formulario y guarda.";
+    const extra = datos.extra || [];
+    for(let i=1;i<=NUM_EXTRA;i++){
+      const item = extra[i-1] || {};
+      document.getElementById(`act_e_${i}`).value = item.actividad || "";
+      document.getElementById(`fecha_e_${i}`).value = item.fecha || "";
+    }
+    estado.textContent = (obligatorias.length || extra.length) ? "Datos cargados." : "Aún no tienes datos guardados. Completa el formulario y guarda.";
   }catch(err){
     estado.textContent = "No se pudieron cargar los datos guardados.";
     console.error(err);
@@ -474,20 +512,30 @@ async function cargarDatosUsuario(){
 function recolectarDatosFormulario(){
   const perfil = {
     nombreVoluntario: document.getElementById("pNombre").value.trim(),
-    telefono: document.getElementById("pTelefono").value.trim(),
+    telefonoCorreo: document.getElementById("pTelefonoCorreo").value.trim(),
     universidad: document.getElementById("pUniversidad").value.trim(),
     regional: document.getElementById("pRegional").value.trim(),
     carrera: document.getElementById("pCarrera").value.trim(),
+    ciclo: document.getElementById("pCiclo").value.trim(),
+    tecnicoResponsable: document.getElementById("pTecnicoResponsable").value.trim(),
   };
-  const actividades = [];
-  for(let i=1;i<=NUM_ACTIVIDADES;i++){
-    actividades.push({
+  const obligatorias = [];
+  for(let i=1;i<=NUM_OBLIGATORIAS;i++){
+    obligatorias.push({
       fila: i,
-      actividad: document.getElementById(`act_${i}`).value.trim(),
-      fecha: document.getElementById(`fecha_${i}`).value
+      actividad: document.getElementById(`act_o_${i}`).value.trim(),
+      fecha: document.getElementById(`fecha_o_${i}`).value
     });
   }
-  return {perfil, actividades};
+  const extra = [];
+  for(let i=1;i<=NUM_EXTRA;i++){
+    extra.push({
+      fila: i,
+      actividad: document.getElementById(`act_e_${i}`).value.trim(),
+      fecha: document.getElementById(`fecha_e_${i}`).value
+    });
+  }
+  return {perfil, obligatorias, extra};
 }
 
 async function guardarDatos(){
@@ -497,13 +545,13 @@ async function guardarDatos(){
     estado.innerHTML = `<span style="color:var(--rojo)">Configura APPS_SCRIPT_URL para poder guardar.</span>`;
     return;
   }
-  const {perfil, actividades} = recolectarDatosFormulario();
+  const {perfil, obligatorias, extra} = recolectarDatosFormulario();
   btn.disabled = true;
   btn.innerHTML = `<span class="spinner"></span> Guardando...`;
   try{
     const resp = await fetch(APPS_SCRIPT_URL, {
       method:"POST",
-      body: JSON.stringify({action:"guardar", usuario: usuarioActual.usuario, perfil, actividades})
+      body: JSON.stringify({action:"guardar", usuario: usuarioActual.usuario, perfil, obligatorias, extra})
     });
     const datos = await resp.json();
     if(datos.success){
@@ -521,7 +569,6 @@ async function guardarDatos(){
 
 /* ---------------- exportaciones ---------------- */
 async function descargarPDF(){
-  const nodo = document.getElementById("capturaPDF");
   const contenedorCompleto = document.getElementById("pantallaBitacora");
   const { jsPDF } = window.jspdf;
   const canvas = await html2canvas(contenedorCompleto, {scale:2, backgroundColor:"#ffffff"});
@@ -542,9 +589,8 @@ async function descargarPDF(){
   pdf.save(`bitacora_${(usuarioActual?.usuario)||"becario"}.pdf`);
 }
 
-function descargarDOCX(){
-  const {perfil, actividades} = recolectarDatosFormulario();
-  const filasHtml = actividades.map(a=>`
+function filaHtmlActividad(a){
+  return `
     <tr>
       <td style="border:1px solid #999;padding:6px;text-align:center">${a.fila}</td>
       <td style="border:1px solid #999;padding:6px">${(a.actividad||"").replace(/\n/g,"<br>")}</td>
@@ -555,30 +601,67 @@ function descargarDOCX(){
       <td style="border:1px solid #999;padding:6px;text-align:center">
         ${urlSelloValida ? `<img src="${urlSelloValida}" style="max-height:40px">` : ""}
       </td>
-    </tr>`).join("");
+    </tr>`;
+}
+
+function tablaHtml(titulo, actividades){
+  return `
+    <p style="font-weight:bold;margin:14px 0 6px">${titulo}</p>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px">
+      <tr style="background:#123a70;color:#fff">
+        <th style="border:1px solid #999;padding:6px">N°</th>
+        <th style="border:1px solid #999;padding:6px">Actividad realizada</th>
+        <th style="border:1px solid #999;padding:6px">Fecha</th>
+        <th style="border:1px solid #999;padding:6px">Nombre y firma del técnico encargado</th>
+        <th style="border:1px solid #999;padding:6px">Sello</th>
+      </tr>
+      ${actividades.map(filaHtmlActividad).join("")}
+    </table>`;
+}
+
+function descargarDOCX(){
+  const {perfil, obligatorias, extra} = recolectarDatosFormulario();
 
   const html = `
   <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
   <head><meta charset="utf-8"><title>Bitácora</title></head>
   <body style="font-family:Calibri,Arial,sans-serif">
-    <h2 style="text-align:center">DIRECCIÓN DE INTEGRACIÓN — CONTINUIDAD ACADÉMICA Y TÉCNICA</h2>
+    <h2 style="text-align:center">DIRECCIÓN DE INTEGRACIÓN CONTINUIDAD ACADÉMICA Y TÉCNICA</h2>
     <p style="text-align:center"><b>CONSTANCIA DE ACTIVIDADES REALIZADAS POR EL BECARIO (CONTROL BECARIO) AÑO 2026</b></p>
     <table style="width:100%;border-collapse:collapse;margin-bottom:14px">
       <tr><td style="padding:4px"><b>Nombre del voluntario:</b></td><td style="padding:4px">${perfil.nombreVoluntario||""}</td></tr>
-      <tr><td style="padding:4px"><b>Número de teléfono:</b></td><td style="padding:4px">${perfil.telefono||""}</td></tr>
+      <tr><td style="padding:4px"><b>Número de teléfono y correo:</b></td><td style="padding:4px">${perfil.telefonoCorreo||""}</td></tr>
       <tr><td style="padding:4px"><b>Universidad de estudio:</b></td><td style="padding:4px">${perfil.universidad||""}</td></tr>
       <tr><td style="padding:4px"><b>Regional:</b></td><td style="padding:4px">${perfil.regional||""}</td></tr>
       <tr><td style="padding:4px"><b>Carrera que estudia:</b></td><td style="padding:4px">${perfil.carrera||""}</td></tr>
+      <tr><td style="padding:4px"><b>Ciclo en curso:</b></td><td style="padding:4px">${perfil.ciclo||""}</td></tr>
     </table>
-    <table style="width:100%;border-collapse:collapse">
-      <tr style="background:#123a70;color:#fff">
-        <th style="border:1px solid #999;padding:6px">N°</th>
-        <th style="border:1px solid #999;padding:6px">Actividad realizada</th>
-        <th style="border:1px solid #999;padding:6px">Fecha</th>
-        <th style="border:1px solid #999;padding:6px">Nombre y firma del encargado</th>
-        <th style="border:1px solid #999;padding:6px">Sello</th>
+
+    <p style="font-size:12px">A continuación se registrarán las 3 actividades obligatorias por cada ciclo</p>
+    ${tablaHtml("Actividades obligatorias por ciclo", obligatorias)}
+
+    <p style="font-size:12px">Tabla extra para las actividades obligatorias/extra correspondientes a este ciclo</p>
+    ${tablaHtml("Actividades extra", extra)}
+
+    <p style="font-size:10.5px;border:1px solid #999;padding:8px">
+      Uso exclusivo Coordinación Continuidad Académica y Técnica y Unidad de Becados (firma del técnico a cargo
+      cuando finalicen las 3 actividades establecidas). Anexado a las actividades extra que el becado haga, puede
+      ser actividades obligatorias extra a las 3 que él realice.
+    </p>
+
+    <table style="width:100%;margin-top:20px">
+      <tr>
+        <td style="padding:6px;text-align:center">
+          ${perfil.tecnicoResponsable||"________________________"}<br>
+          Nombre completo de técnico responsable en la universidad
+        </td>
+        <td style="padding:6px;text-align:center">
+          ${urlFirmaValida ? `<img src="${urlFirmaValida}" style="max-height:50px"><br>` : ""}Firma
+        </td>
+        <td style="padding:6px;text-align:center">
+          ${urlSelloValida ? `<img src="${urlSelloValida}" style="max-height:50px"><br>` : ""}Sello
+        </td>
       </tr>
-      ${filasHtml}
     </table>
   </body></html>`;
 
@@ -590,13 +673,14 @@ function descargarDOCX(){
 }
 
 function descargarJSON(){
-  const {perfil, actividades} = recolectarDatosFormulario();
+  const {perfil, obligatorias, extra} = recolectarDatosFormulario();
   const paquete = {
     usuario: usuarioActual?.usuario,
     nombreCompleto: usuarioActual?.nombreCompleto,
     generado: new Date().toISOString(),
     perfil,
-    actividades
+    obligatorias,
+    extra
   };
   const blob = new Blob([JSON.stringify(paquete, null, 2)], {type:"application/json"});
   const enlace = document.createElement("a");
