@@ -6,6 +6,8 @@
 <title>Control de Becarios · Dirección de Integración</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pizzip@3.2.0/dist/pizzip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.69.0/build/docxtemplater.min.js"></script>
 <style>
 :root{
   --azul-oscuro:#0b2447;
@@ -205,9 +207,12 @@ table.pi-tabla-actividades td.pi-sello img{max-width:100%; max-height:55px; obje
       <h1>Dirección de Integración<br>Continuidad Académica y Técnica</h1>
     </div>
   </div>
-  <div id="cajaUsuario" class="oculto" style="display:flex;align-items:center;gap:14px">
-    <div class="der">Florecimiento Salvadoreño<br><span id="nombreUsuarioActivo"></span></div>
-    <button class="btn-salir" onclick="cerrarSesion()">Salir</button>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="btn-salir" onclick="crearBaseDeDatos()" title="Crear o verificar las pestañas y campos necesarios en Google Sheets">🗄 BD</button>
+    <div id="cajaUsuario" class="oculto" style="display:flex;align-items:center;gap:14px">
+      <div class="der">Florecimiento Salvadoreño<br><span id="nombreUsuarioActivo"></span></div>
+      <button class="btn-salir" onclick="cerrarSesion()">Salir</button>
+    </div>
   </div>
 </header>
 
@@ -363,7 +368,7 @@ table.pi-tabla-actividades td.pi-sello img{max-width:100%; max-height:55px; obje
     <div class="barra-acciones">
       <button class="btn btn-guardar" onclick="guardarDatos()" id="btnGuardar">💾 Guardar datos</button>
       <button class="btn btn-accion" onclick="descargarPDF()" id="btnPDF">⬇ Descargar PDF (igual al formato oficial)</button>
-      <button class="btn btn-accion" onclick="descargarDOCX()">⬇ Descargar Word</button>
+      <button class="btn btn-accion" onclick="descargarWordDesdePlantilla()">⬇ Descargar Word</button>
       <button class="btn btn-accion" onclick="descargarJSON()">⬇ Descargar JSON</button>
     </div>
     <div class="estado-guardado" id="estadoGuardado"></div>
@@ -810,6 +815,25 @@ function backendConfigurado(){
   return APPS_SCRIPT_URL && APPS_SCRIPT_URL.startsWith("http");
 }
 
+async function crearBaseDeDatos(){
+  if(!backendConfigurado()){
+    alert("Primero configura APPS_SCRIPT_URL en index.html con la URL de tu Apps Script publicado.");
+    return;
+  }
+  try{
+    const resp = await fetch(`${APPS_SCRIPT_URL}?action=crearBaseDeDatos`);
+    const datos = await resp.json();
+    if(datos.success){
+      alert(`✔ Base de datos lista.\n\nHoja: ${datos.url}\nPestañas: ${(datos.hojas||[]).join(", ")}\n\n(Se abrirá el enlace al aceptar)`);
+      window.open(datos.url, "_blank");
+    } else {
+      alert("No se pudo crear/verificar la base de datos: " + (datos.error || datos.mensaje || "error desconocido"));
+    }
+  }catch(err){
+    alert("Error de conexión al crear la base de datos: " + err.message);
+  }
+}
+
 async function cargarListaUsuarios(){
   if(!backendConfigurado()){
     document.getElementById("avisoConfig").classList.remove("oculto");
@@ -1114,6 +1138,66 @@ async function descargarPDF(){
     plantilla.classList.remove("mostrando-para-captura");
     btn.disabled = false;
     btn.innerHTML = textoOriginal;
+  }
+}
+
+/**
+ * Genera el Word rellenando la plantilla real "plantilla_bitacora.docx"
+ * (debe estar en la misma carpeta que este index.html) — es el documento
+ * oficial tal cual, solo con los campos {llenados}. Si no encuentra el
+ * archivo, cae de vuelta al método anterior (recreación en HTML).
+ */
+async function descargarWordDesdePlantilla(){
+  const estado = document.getElementById("estadoGuardado");
+  if(typeof window.PizZip === "undefined" || typeof window.docxtemplater === "undefined"){
+    estado.innerHTML = `<span style="color:var(--rojo)">No se pudieron cargar las librerías para la plantilla Word. Revisa tu conexión.</span>`;
+    return;
+  }
+  try{
+    const resp = await fetch("plantilla_bitacora.docx");
+    if(!resp.ok) throw new Error("no encontrada");
+    const contenido = await resp.arrayBuffer();
+
+    const {perfil, obligatorias, extra} = recolectarDatosFormulario();
+    const datosParaPlantilla = {
+      nombre_voluntario: perfil.nombreVoluntario || "",
+      telefono_correo: perfil.telefonoCorreo || "",
+      universidad: perfil.universidad || "",
+      regional: perfil.regional || "",
+      carrera: perfil.carrera || "",
+      ciclo: perfil.ciclo || "",
+      tecnico_responsable: perfil.tecnicoResponsable || "",
+    };
+    obligatorias.forEach((a,idx)=>{
+      const n = idx+1;
+      datosParaPlantilla[`actividad_o_${n}`] = a.actividad || "";
+      datosParaPlantilla[`fecha_o_${n}`] = a.fecha || "";
+      datosParaPlantilla[`tecnico_o_${n}`] = a.tecnico || "";
+    });
+    extra.forEach((a,idx)=>{
+      const n = idx+1;
+      datosParaPlantilla[`actividad_e_${n}`] = a.actividad || "";
+      datosParaPlantilla[`fecha_e_${n}`] = a.fecha || "";
+      datosParaPlantilla[`tecnico_e_${n}`] = a.tecnico || "";
+    });
+
+    const zip = new PizZip(contenido);
+    const doc = new window.docxtemplater(zip, {paragraphLoop:true, linebreaks:true});
+    doc.render(datosParaPlantilla);
+
+    const salida = doc.getZip().generate({
+      type:"blob",
+      mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    });
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(salida);
+    enlace.download = `bitacora_${(usuarioActual?.usuario)||"becario"}.docx`;
+    enlace.click();
+    estado.innerHTML = `<span style="color:var(--verde)">✔ Word generado desde la plantilla oficial.</span>`;
+  }catch(err){
+    console.warn("No se pudo usar plantilla_bitacora.docx, usando método alterno:", err);
+    estado.innerHTML = `<span style="color:var(--rojo)">No se encontró <code>plantilla_bitacora.docx</code> en la carpeta; se generó una versión alterna en su lugar.</span>`;
+    descargarDOCX();
   }
 }
 
